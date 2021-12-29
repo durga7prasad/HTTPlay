@@ -190,7 +190,7 @@ static void handle_request(char *request, int req_len, int cfd)
 			/* removing '?' to get file path */
 			*temp = '\0';
 		}
-		sprintf (file_path, "res/%s", uri);
+		sprintf (file_path, "res%s", uri);
 	}
 	ResponseCode = HTTP_200;
 	ContentType = HTTP_TEXT_HTML;
