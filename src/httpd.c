@@ -215,7 +215,8 @@ static void handle_request(char *request, int req_len, int cfd)
 		return;
 	}
 	status = fstat(fd, &file_info);
-	if (status == -1)
+	/* If success, then handle only regular files */
+	if (status == -1 || S_ISREG(file_info.st_mode) == 0)
 	{
 		printf ("Unable to get file details\n");
 		perror ("fstat");
