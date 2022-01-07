@@ -179,6 +179,7 @@ static void handle_request(char *request, int req_len, int cfd)
 	if (strcmp (uri, "/") == 0)
 	{
 		strcpy (file_path, "res/Index.html");
+		ContentType = HTTP_TEXT_HTML;
 	}
 	else
 	{
@@ -191,9 +192,28 @@ static void handle_request(char *request, int req_len, int cfd)
 			*temp = '\0';
 		}
 		sprintf (file_path, "res%s", uri);
+		/* Identify file type and assign content type */
+		temp = strchr(uri, '.');
+		if (temp)
+		{
+			temp++;
+			if(strcmp(temp, "jpg") == 0 || strcmp (temp, "jpeg") == 0)
+			{
+				ContentType = HTTP_IMAGE;
+			}
+			else
+			{
+				/* Don't know, how to send. so sending as text */
+				ContentType = HTTP_TEXT_HTML;
+			}
+		}
+		else
+		{
+			/* The file has no extension, send as text file */
+			ContentType = HTTP_TEXT_HTML;
+		}
 	}
 	ResponseCode = HTTP_200;
-	ContentType = HTTP_TEXT_HTML;
 
 	/* Get file length */
 	fd = open(file_path, S_IRUSR);
@@ -358,6 +378,10 @@ static int send_response_header (int cfd, int resp, int type, int len)
 			break;
 		case HTTP_TRACE:
 			ret = sprintf (buf+offset, "%s", CONTENT_TYPE_TRACE);
+			offset += ret;
+			break;
+		case HTTP_IMAGE:
+			ret = sprintf (buf+offset, "%s", CONTENT_TYPE_IMAGE);
 			offset += ret;
 			break;
 		default:
